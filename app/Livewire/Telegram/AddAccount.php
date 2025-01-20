@@ -44,6 +44,14 @@ class AddAccount extends Component
         $this->changeStep(2);
     }
 
+    public function phoneLogin($sessionName)
+    {
+        $number = explode("/", $sessionName);
+        $phoneNumber = $number[1];
+        Http::get("http://5.223.47.101:9503/api/users/$sessionName/phoneLogin?phone=$phoneNumber");
+        $this->changeStep(2);
+    }
+
     public function addAccount()
     {
         Http::get("http://5.223.47.101:9503/api/users/$this->sessionName/completePhoneLogin?code=$this->code");
