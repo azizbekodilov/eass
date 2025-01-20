@@ -19,6 +19,10 @@ class AddAccount extends Component
         $this->step = $step;
     }
 
+    public function addSession()
+    {
+        Http::get("http://5.223.47.101:9503/system/addSession?session=users/$this->sessionName");
+    }
     public function sendCode()
     {
         Http::get("http://5.223.47.101:9503/api/users/$this->sessionName/phoneLogin?phone=$this->sessionName");
