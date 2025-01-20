@@ -15,6 +15,8 @@ class AddAccount extends Component
     public $phone;
     public $code;
     public $newAccount;
+    public $current_tg;
+    public $tg_id = 0;
 
     public function changeStep($step)
     {
@@ -23,21 +25,21 @@ class AddAccount extends Component
 
     public function addSession()
     {
-        Http::get("http://5.223.47.101:9503/system/addSession?session=users/$this->sessionName");
-        $this->changeStep(1);
-        $tg = TelegramAccount::where('session', 'users/'.$this->sessionName)->first();
-        if ($tg) {
-        } else {
-            $this->newAccount = TelegramAccount::create(
-                [
-                    'session' => 'users'.$this->sessionName,
-                ]
-            );
+        $this->current_tg = TelegramAccount::where('session', 'users/'.$this->sessionName)->first();
+        if ($this->current_tg) {
+            $this->tg_id = TelegramAccount::where('session', 'users/'.$this->sessionName)->first()->id;
         }
+        $this->changeStep(1);
     }
 
     public function sendCode()
     {
+        Http::get("http://5.223.47.101:9503/system/addSession?session=users/$this->sessionName");
+                $this->newAccount = TelegramAccount::create(
+                    [
+                        'session' => 'users/'.$this->sessionName,
+                    ]
+        );
         Http::get("http://5.223.47.101:9503/api/users/$this->sessionName/phoneLogin?phone=$this->sessionName");
         $this->changeStep(2);
     }
