@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Telegram;
 
+use App\Models\TelegramAccount;
 use Illuminate\Support\Facades\Http;
 use Livewire\Component;
 
@@ -13,6 +14,7 @@ class AddAccount extends Component
     public $sessionName;
     public $phone;
     public $code;
+    public $newAccount;
 
     public function changeStep($step)
     {
@@ -22,27 +24,73 @@ class AddAccount extends Component
     public function addSession()
     {
         Http::get("http://5.223.47.101:9503/system/addSession?session=users/$this->sessionName");
+        $this->changeStep(1);
+        $tg = TelegramAccount::where('session', 'users/'.$this->sessionName)->first();
+        if ($tg) {
+        } else {
+            $this->newAccount = TelegramAccount::create(
+                [
+                    'session' => 'users'.$this->sessionName,
+                ]
+            );
+        }
     }
+
     public function sendCode()
     {
         Http::get("http://5.223.47.101:9503/api/users/$this->sessionName/phoneLogin?phone=$this->sessionName");
+        $this->changeStep(2);
     }
 
     public function addAccount()
     {
+        Http::get("http://5.223.47.101:9503/api/users/$this->sessionName/completePhoneLogin?code=$this->code");
+        $this->changeStep(3);
+    }
 
-        if ($this->step == 0){
-            Http::get("http://5.223.47.101:9503/system/addSession?session=users/$this->sessionName");
-        }elseif ($this->step == 2){
-            Http::get("http://5.223.47.101:9503/api/users/$this->sessionName/completePhoneLogin?code=$this->code");
-        }
-        elseif ($this->step == 3){
-            Http::get("http://5.223.47.101:9503/api/users/$this->sessionName/complete2falogin?password=$this->phone");
+    public function checkStatus($session)
+    {
+        $datas = collect(Http::get("http://5.223.47.101:9503/api/$session/getSelf")->json());
+        $collect = $datas->toArray();
+        if ($collect['success'] == false) {
+            $tg = TelegramAccount::where('session', $session)->first();
+            $tg->status = $collect['errors'][0]['message'];
+            $tg->save();
+        } else {
+            $datas = collect(Http::get("http://5.223.47.101:9503/system/getSessionList")->json());
+            $collect = $datas->toArray();
+            foreach ($collect['response']['sessions'] as $key => $value) {
+                $tg = TelegramAccount::where('session', $session)->first();
+                if ($value['session'] == $session) {
+                    $tg->status = $value['status'];
+                    $tg->save();
+                }
+            }
         }
     }
 
+    public function removeSession($session)
+    {
+        Http::get("http://5.223.47.101:9503/system/removeSession?session=$session");
+        Http::get("http://5.223.47.101:9503/system/unlink?session=$session");
+        $this->checkStatus($session);
+    }
+
+
     public function render()
     {
-        return view('livewire.telegram.add-account')->extends("adminlte::page");
+        $data = collect(Http::get("http://5.223.47.101:9503/system/getSessionList"));
+        // foreach (data as $key => $value) {
+        //     $new = new TelegramAccount();
+        //     $new->session = $value['session'];
+        //     $new->status = $value['status'];
+        //     $new->save();
+        // }
+
+        $all_sessions = TelegramAccount::all();
+        // dd($collet['response']['sessions']->where('session', 'aiz'));
+
+
+        return view('livewire.telegram.add-account', compact('data', 'all_sessions'))->extends("adminlte::page");
     }
 }

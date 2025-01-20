@@ -17,14 +17,13 @@
                             </span>
                         </label>
                         <input class="placeholder:italic placeholder:text-slate-400 block bg-white w-full border border-slate-300 rounded-md py-2 pl-9 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm" placeholder="Напишите номер" type="text" wire:model="sessionName"/>
-                        <button class="bg-indigo-500" wire:click.prevent="changeStep('1'), addSession()">Отправить код</button>
+                        <button class="bg-indigo-500" wire:click.prevent="addSession()">Отправить код</button>
                         <button wire:click.prevent="addAccount()">save</button>
                     </div>
                 </div>
                     @elseif($step == 1)
                     <div class="mt-4 text-center">
-                        <button class="bg-indigo-500" wire:click.prevent="changeStep('2'), sendCode()">Верно</button>
-                        <p class="text-gray-700">message = {{$message}}</p>
+                        <button class="bg-indigo-500" wire:click.prevent="sendCode()">Номер правильно?</button>
                     </div>
                 </div>
             @elseif($step == 2)
@@ -33,8 +32,11 @@
                     <button wire:click.prevent="addAccount()" class="mt-4 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">
                         Подтвердить
                     </button>
+                    <button wire:click.prevent="sendCode()" class="mt-4 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">
+                        Переотправить
+                    </button>
                 </div>
-            @elseif($step == 3)
+                @endif
                 <div class="p-6">
                     <p class="text-gray-700">{{$message}}</p>
                     <table class="min-w-full bg-white mt-4">
@@ -43,24 +45,54 @@
                             <th class="px-4 py-2 font-bold text-blue-950" >ID</th>
                             <th class="px-4 py-2 font-bold text-blue-950">Session Name</th>
                             <th class="px-4 py-2 font-bold text-blue-950">Phone Number</th>
-                            <th class="px-4 py-2 font-bold text-blue-950">First Name</th>
-                            <th class="px-4 py-2 font-bold text-blue-950">Last Name</th>
+                            {{-- <th class="px-4 py-2 font-bold text-blue-950">First Name</th>
+                            <th class="px-4 py-2 font-bold text-blue-950">Last Name</th> --}}
                             <th class="px-4 py-2 font-bold text-blue-950">Status</th>
+                            <th class="px-4 py-2 font-bold text-blue-950">Action</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
+                            {{-- {{dd($all_sessions)}} --}}
+                            {{-- @foreach ($data['response']['sessions'] as $item)
+                            <tr>
+                                <td>
+                                    {{$item['session']}}
+                                </td>
+                                <td>
+                                    {{$item['status']}}
+                                </td>
+                            </tr>
+                            @endforeach --}}
+                            @foreach ($all_sessions as $key => $item)
+                            <tr>
+                                <td>{{$key+1}}</td>
+                                <td>
+                                    {{$item->session}}
+                                </td>
+                                <td>
+                                    {{$item->session}}
+                                </td>
+                                <td>
+                                    {{$item->status}}
+                                </td>
+                                <td>
+                                    <button wire:click.prevent="checkStatus('{{$item->session}}')">Проверить статус</button>
+                                    <button wire:click.prevent="removeSession('{{$item->session}}')">Revoke</button>
+                                </td>
+                            </tr>
+                            @endforeach
+                        {{-- <tr>
                             <td class="border px-4 py-2 font-bold text-blue-950">{{$record->id}}</td>
                             <td class="border px-4 py-2 font-bold text-blue-950">{{$record->session_name}}</td>
                             <td class="border px-4 py-2 font-bold text-blue-950">{{$record->phone_number}}</td>
                             <td class="border px-4 py-2 font-bold text-blue-950">{{$record->first_name}}</td>
                             <td class="border px-4 py-2 font-bold text-blue-950">{{$record->last_name}}</td>
                             <td class="border px-4 py-2 font-bold text-blue-950">{{$record->status}}</td>
-                        </tr>
+                        </tr> --}}
                         </tbody>
                     </table>
                 </div>
-            @endif
+
         </div>
     </section>
 </div>
