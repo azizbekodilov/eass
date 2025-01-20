@@ -23,7 +23,7 @@ Route::group(['prefix' => 'telegram'], function () {
     // Route::get('getSelf/{sessionName}', [TelegramAuthAccount::class, 'getSelf']);
     // Route::get('qrLogin/login', [TelegramAuthAccount::class, 'qrLogin']);
     // Route::get('account/{id}', TelegramAuthAccount::class);
-    Route::get('accounts', AddAccount::class);
+    Route::get('accountsadd', AddAccount::class);
 });
 
 Route::view('dashboard', 'dashboard')
