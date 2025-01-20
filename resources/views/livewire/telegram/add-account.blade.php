@@ -91,9 +91,9 @@
                     {{$item->status}}
                 </td>
                 <td>
-                    @if ($item->session == 'WAITING_CODE')
+                    @if ($item->status == 'WAITING_CODE')
                         <button wire:click.prevent="phoneLogin('{{$item->session}}')">Получить код заново</button>
-                        @else
+                    @else
                         <button wire:click.prevent="checkStatus('{{$item->session}}')">Проверить статус</button>
                     @endif
                     <button wire:click.prevent="removeSession('{{$item->session}}')">Revoke</button>
